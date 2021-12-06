@@ -28,3 +28,5 @@ const kAlertNameEmpty = "Name cannot be empty";
 const kAlertGraduateEmpty = "Graduated year cannot be empty";
 const kSignupHereUpper = "Sign Up Here";
 const kNewMember = "New Member? ";
+const kAgeLower = "age";
+const kAge = "Age";
