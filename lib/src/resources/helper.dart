@@ -26,6 +26,7 @@ const kAlertEmailEmpty = "Email cannot be empty.";
 const kAlertPasswordEmpty = "Password cannot be empty.";
 const kAlertNameEmpty = "Name cannot be empty";
 const kAlertGraduateEmpty = "Graduated year cannot be empty";
+const kAlertAgeEmpty = "Age cannot be empty";
 const kSignupHereUpper = "Sign Up Here";
 const kNewMember = "New Member? ";
 const kAgeLower = "age";

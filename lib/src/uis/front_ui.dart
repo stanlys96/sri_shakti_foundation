@@ -68,7 +68,7 @@ class _FrontUIState extends State<FrontUI>
     _loginValidation.addAll({kPasswordLower: kAlertPasswordEmpty});
 
     _registerValidation.addAll({kNameLower: kAlertNameEmpty});
-    _registerValidation.addAll({kGraduateLower: kAlertGraduateEmpty});
+    _registerValidation.addAll({kAgeLower: kAlertAgeEmpty});
     _registerValidation.addAll({kEmailLower: kAlertEmailEmpty});
     _registerValidation.addAll({kPasswordLower: kAlertPasswordEmpty});
   }
@@ -484,23 +484,21 @@ class _FrontUIState extends State<FrontUI>
   }
 
   void _doRegister() {
-    print("EY");
-    List<String> keys = [
-      kNameLower,
-      kAgeLower,
-      kEmailLower,
-      kPasswordLower,
-    ];
-    Map<String, dynamic> params = {};
-    keys.forEach((element) {
-      params.addAll({element: _registerController!.name(element)!.text});
-    });
-    Provider.of<FrontProvider>(context, listen: false)
-        .doRegister(params: params, controller: _registerController);
     if (_valid(
         validator: _registerValidation, controller: _registerController)) {
       FocusScope.of(context).requestFocus(FocusNode());
-      print("OY");
+      List<String> keys = [
+        kNameLower,
+        kAgeLower,
+        kEmailLower,
+        kPasswordLower,
+      ];
+      Map<String, dynamic> params = {};
+      keys.forEach((element) {
+        params.addAll({element: _registerController!.name(element)!.text});
+      });
+      Provider.of<FrontProvider>(context, listen: false)
+          .doRegister(params: params, controller: _registerController);
     }
   }
 
@@ -712,6 +710,7 @@ class _FrontUIState extends State<FrontUI>
     for (String key in validator.keys) {
       if (controller!.name(key)!.text.isEmpty) {
         valid = false;
+        showMessage(validator[key]);
         break;
       }
     }
