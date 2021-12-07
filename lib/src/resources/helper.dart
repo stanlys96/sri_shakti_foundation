@@ -30,3 +30,14 @@ const kSignupHereUpper = "Sign Up Here";
 const kNewMember = "New Member? ";
 const kAgeLower = "age";
 const kAge = "Age";
+const kSignupSuccess = "Sign up success!";
+const kAlertSignupSuccess = "Sign up success!";
+
+void showSnackBar({required GlobalKey key, required String? message}) {
+  ScaffoldMessenger.of(key.currentContext!).showSnackBar(
+    SnackBar(
+      content: Text(message!),
+      duration: Duration(seconds: 3),
+    ),
+  );
+}

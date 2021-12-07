@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sri_shakti_foundation/src/resources/helper.dart';
 import 'package:sri_shakti_foundation/src/providers/front_provider.dart';
+import 'package:sri_shakti_foundation/src/views/front_view.dart';
 
 var emailValid = RegExp(
     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
@@ -18,7 +19,8 @@ class FrontUI extends StatefulWidget {
 }
 
 class _FrontUIState extends State<FrontUI>
-    with SingleTickerProviderStateMixin, AfterLayoutMixin {
+    with SingleTickerProviderStateMixin, AfterLayoutMixin
+    implements FrontView {
   Animation<double>? _blurAnimation;
   AnimationController? _blurController;
 
@@ -33,7 +35,7 @@ class _FrontUIState extends State<FrontUI>
   Map<String, String> _loginValidation = new Map();
   Map<String, String> _registerValidation = new Map();
 
-  GlobalKey key = GlobalKey<ScaffoldState>();
+  GlobalKey globalKey = GlobalKey();
 
   AnimationController _controller() {
     return AnimationController(
@@ -60,6 +62,8 @@ class _FrontUIState extends State<FrontUI>
 
   @override
   void afterFirstLayout(BuildContext context) {
+    Provider.of<FrontProvider>(context, listen: false).view = this;
+
     _loginValidation.addAll({kIdentifierLower: kAlertEmailEmpty});
     _loginValidation.addAll({kPasswordLower: kAlertPasswordEmpty});
 
@@ -83,7 +87,7 @@ class _FrontUIState extends State<FrontUI>
     return WillPopScope(
       child: Scaffold(
         body: _body(),
-        key: key,
+        key: globalKey,
       ),
       onWillPop: () {
         return Future<bool>.value(false);
@@ -479,7 +483,26 @@ class _FrontUIState extends State<FrontUI>
     );
   }
 
-  void _doRegister() {}
+  void _doRegister() {
+    print("EY");
+    List<String> keys = [
+      kNameLower,
+      kAgeLower,
+      kEmailLower,
+      kPasswordLower,
+    ];
+    Map<String, dynamic> params = {};
+    keys.forEach((element) {
+      params.addAll({element: _registerController!.name(element)!.text});
+    });
+    Provider.of<FrontProvider>(context, listen: false)
+        .doRegister(params: params, controller: _registerController);
+    if (_valid(
+        validator: _registerValidation, controller: _registerController)) {
+      FocusScope.of(context).requestFocus(FocusNode());
+      print("OY");
+    }
+  }
 
   void _doLogin() {}
 
@@ -599,8 +622,105 @@ class _FrontUIState extends State<FrontUI>
         _register(),
         _login(),
         _backButton(),
+        _builder(),
       ],
     );
+  }
+
+  Widget _builder() {
+    return Consumer<FrontProvider>(
+      builder: (context, value, child) {
+        if (value.loading) {
+          return Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.black45,
+            child: Center(
+              child: Lottie.asset(
+                'images/loading.json',
+                height: 100.0,
+              ),
+            ),
+          );
+        } else if (value.registerSuccess) {
+          return InkWell(
+            child: Container(
+              color: Colors.black87,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white70,
+                      size: 24.0,
+                    ),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          kSignupSuccess,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28.0),
+                        ),
+                        SizedBox(
+                          height: 40.0,
+                        ),
+                        Lottie.asset(
+                          'images/success.json',
+                          height: 300.0,
+                          repeat: false,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: Text(
+                            kAlertSignupSuccess,
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                alignment: Alignment.topRight,
+              ),
+            ),
+            onTap: () => {
+              Provider.of<FrontProvider>(context, listen: false)
+                  .registerSuccess = false
+            },
+          );
+        } else {
+          return Container();
+        }
+      },
+    );
+  }
+
+  bool _valid(
+      {required Map<String, String> validator,
+      required FormController? controller}) {
+    bool valid = true;
+
+    for (String key in validator.keys) {
+      if (controller!.name(key)!.text.isEmpty) {
+        valid = false;
+        break;
+      }
+    }
+
+    return valid;
+  }
+
+  void showMessage(String? message) {
+    showSnackBar(key: globalKey, message: message);
   }
 
   void _gotoLogin() {
@@ -620,6 +740,38 @@ class _FrontUIState extends State<FrontUI>
     _blurAnimation = null;
     _blurController = null;
     super.dispose();
+  }
+
+  @override
+  void backToFrontPage() {
+    Provider.of<FrontProvider>(context, listen: false).state =
+        PageState.FRONT_PAGE;
+    _blurController?.forward();
+  }
+
+  @override
+  void goToEnterCodePage() {
+    // TODO: implement goToEnterCodePage
+  }
+
+  @override
+  void goToNewPasswordPage() {
+    // TODO: implement goToNewPasswordPage
+  }
+
+  @override
+  void goToResetPasswordPage() {
+    // TODO: implement goToResetPasswordPage
+  }
+
+  @override
+  void gotoAppActivity() {
+    // TODO: implement gotoAppActivity
+  }
+
+  @override
+  void showMessageDialog({required String title, required String content}) {
+    // TODO: implement showMessageDialog
   }
 }
 
